@@ -1,7 +1,7 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
-      <slider
+      <slider style="width: 800px"
               :total-date-range="['2019-6-4', '2019-6-5']"
               :date-range="['2019-6-4 12:52:00', '2019-6-4 16:43:45']"/>
     <!--<p>-->

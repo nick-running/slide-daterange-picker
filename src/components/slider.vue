@@ -6,7 +6,9 @@
                  @dragover="handleRangeDragOver"
                  @dragend="handleRangeDragEnd"
                  draggable="true" :style="sliderMaskStyles" class="slider-range">
-                <div class="slider-bar slider-bar1"></div>
+                <div @dragstart="handleSliderBarDragStart"
+                     @drag="handleSliderBarDrag" draggable="true"
+                     class="slider-bar slider-bar1"></div>
                 <div class="slider-bar slider-bar2"></div>
             </div>
         </div>
@@ -54,6 +56,12 @@
           draggingOffsetX: 0,
           clientX: 0,
         },
+        dragSlider1: {
+          offsetX: 0,
+          startOffsetX: 0,
+          draggingOffsetX: 0,
+          clientX: 0,
+        },
         sliderMaskStyles: {
           left: 0,
           width: 0,
@@ -77,7 +85,7 @@
         this.getDomAttr()
       },
       handleRangeDragStart(ev){
-        // ev.effectAllowed = 'move'
+        ev.effectAllowed = 'move'
         this.drag.startOffsetX = ev.layerX
 
         console.log('开始拖动 is: ', ev)
@@ -116,6 +124,22 @@
 
         // this.drag.startOffsetX = 0
         // this.drag.draggingOffsetX = 0
+      },
+      handleSliderBarDragStart(ev) {
+        this.dragSlider1.startOffsetX = ev.layerX
+      },
+      handleSliderBarDrag(ev) {
+        ev.preventDefault();
+        console.log('handleSliderBarDrag ev is: ', ev)
+        this.dragSlider1.startOffsetX = ev.layerX
+        this.dragSlider1.clientX = ev.clientX
+
+        let left = (this.dragSlider1.clientX-this.box.offsetLeft-this.dragSlider1.startOffsetX)
+        let left2 = left+parseFloat(this.sliderMaskStyles.width)
+        let lastLeft = this.sliderMaskStyles.left
+        // console.log('left-parseFloat(lastLeft) is: ', JSON.stringify(left-parseFloat(lastLeft)))
+        this.sliderMaskStyles.left = left+'px'
+        this.sliderMaskStyles.width = (parseFloat(this.sliderMaskStyles.width)+this.dragSlider1.startOffsetX)+'px'
       }
     },
     computed: {
@@ -215,10 +239,11 @@
         background-color: rgba(0, 0, 0, 0.2);
         display: flex;
         justify-content: space-between;
-        cursor: ew-resize;
+        /*cursor: ew-resize;*/
     }
     .slider-range>.slider-bar{
         width: 5px;
         background-color: red;
+        cursor: ew-resize;
     }
 </style>

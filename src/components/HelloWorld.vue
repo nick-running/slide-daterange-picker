@@ -1,9 +1,13 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
-      <slider style="width: 800px"
+      <div style="text-align: center">{{dateRange}}</div>
+      <slider @on-date-range-change="dateRange=$event"
               :total-date-range="['2019-6-4', '2019-6-5']"
-              :date-range="['2019-6-4 12:52:00', '2019-6-4 16:43:45']"/>
+              format="YYYY-MM-DD HH:mm:ss"
+              :date-range="['2019-6-4 12:52:00', '2019-6-4 16:43:45']">
+          <div>big data</div>
+      </slider>
     <!--<p>-->
       <!--For a guide and recipes on how to configure / customize this project,<br>-->
       <!--check out the-->
@@ -40,6 +44,17 @@ export default {
   components: {slider},
   props: {
     msg: String
+  },
+  data(){
+    return {
+      dateRange: null
+    }
+  },
+  methods: {
+    // handleDateRangeChange(dateRange) {
+    //   this.dateRange = dateRange
+    //   // console.log('dateRange is: ', JSON.stringify(dateRange))
+    // }
   }
 }
 </script>

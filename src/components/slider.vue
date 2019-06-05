@@ -1,15 +1,16 @@
 <template>
     <div class="slider" :style="styles">
         <div ref="sliderBox" class="slider-box">
-            <div @dragstart="handleRangeDragStart"
-                 @drag="handleRangeDrag"
-                 @dragover="handleRangeDragOver"
-                 @dragend="handleRangeDragEnd"
-                 draggable="true" :style="sliderMaskStyles" class="slider-range">
-                <div @dragstart="handleSliderBarDragStart"
-                     @drag="handleSliderBarDrag" draggable="true"
+            <div class="extra-content">
+                <slot></slot>
+            </div>
+            <div @mousedown="handleRangeDragStart"
+                 :style="sliderMaskStyles" class="slider-range">
+                <div @mousedown="handleSliderBarDragStart"
                      class="slider-bar slider-bar1"></div>
-                <div class="slider-bar slider-bar2"></div>
+
+                <div @mousedown="handleSliderBar2DragStart"
+                     class="slider-bar slider-bar2"></div>
             </div>
         </div>
     </div>
@@ -18,9 +19,17 @@
 <script>
   export default {
     name: "slider",
+    model: {
+      prop: 'myDateRange',
+      event: 'change'
+    },
     props: {
       height: {
+        type: Number,
         default: 30
+      },
+      format: {
+        type: String
       },
       totalDateRange: {
         type: Array,
@@ -40,7 +49,8 @@
         box: {
           offsetLeft: 0,
           width: 0,
-          height: 0
+          height: 0,
+          maxLeft: 0 // 容器最大长度
         },
         myTotalDateRange: {
           startDate: null,
@@ -51,12 +61,21 @@
           endDate: null
         },
         drag: {
+          active: false,
           offsetX: 0,
           startOffsetX: 0,
           draggingOffsetX: 0,
           clientX: 0,
         },
         dragSlider1: {
+          active: false,
+          offsetX: 0,
+          startOffsetX: 0,
+          draggingOffsetX: 0,
+          clientX: 0,
+        },
+        dragSlider2: {
+          active: false,
           offsetX: 0,
           startOffsetX: 0,
           draggingOffsetX: 0,
@@ -80,12 +99,64 @@
         this.box.width = this.$refs.sliderBox.clientWidth
         this.box.height = this.$refs.sliderBox.clientHeight
         this.box.offsetLeft = this.$refs.sliderBox.offsetLeft
+        this.box.maxLeft = this.$refs.sliderBox.clientWidth
+        // console.log('this.$refs.sliderBox.offsetLeft is: ', JSON.stringify(this.$refs.sliderBox.offsetLeft))
+        // console.log('this.$refs.sliderBox.clientLeft is: ', JSON.stringify(this.$refs.sliderBox.clientLeft))
+        // console.log('this.$refs.sliderBox.clientWidth is: ', JSON.stringify(this.$refs.sliderBox.clientWidth))
       },
       resize(){
+        console.log('resize.')
         this.getDomAttr()
       },
+      move(ev) {
+        ev.stopPropagation();
+        if(!this.drag.active&&!this.dragSlider1.active&&!this.dragSlider2.active) return
+        if (this.drag.active) {
+            this.handleRangeDrag(ev)
+        }else if (this.dragSlider1.active) {
+            this.handleSliderBarDrag(ev)
+        }else if (this.dragSlider2.active) {
+          this.handleSliderBar2Drag(ev)
+        }
+        this.setTime()
+        // console.log('ev is: ', ev)
+      },
+      up() {
+        if(!this.drag.active&&!this.dragSlider1.active&&!this.dragSlider2.active) return
+        if (this.drag.active) {
+            this.drag.active = false
+        }else if (this.dragSlider1.active) {
+            this.dragSlider1.active = false
+        }else if (this.dragSlider2.active) {
+            this.dragSlider2.active = false
+        }
+        this.setTime()
+      },
+      setTime(){
+        // debugger
+        let left = parseFloat(this.sliderMaskStyles.left)
+        let left2 = left+parseFloat(this.sliderMaskStyles.width)
+        let startDateTime = (left*this.scale)+new Date(this.myTotalDateRange.startDate).getTime()
+        let endDateTime = (left2*this.scale)+new Date(this.myTotalDateRange.startDate).getTime()
+        console.log('setTime...')
+        // console.log('startDateTime is: ', JSON.stringify(Math.ceil(startDateTime)))
+        // console.log('endDateTime is: ', JSON.stringify(Math.ceil(endDateTime)))
+        this.myDateRange.startDate = this.$moment(Math.ceil(startDateTime))
+        this.myDateRange.endDate = this.$moment(Math.ceil(endDateTime))
+        let dateRange = []
+        if (this.format) {
+          const _this = this
+          let formatDate = (date)=>_this.$moment(date).format(_this.format)
+          dateRange[0] = formatDate(this.myDateRange.startDate)
+          dateRange[1] = formatDate(this.myDateRange.endDate)
+        }else{
+          dateRange = this.myDateRange
+        }
+        this.$emit('on-date-range-change', dateRange);
+      },
       handleRangeDragStart(ev){
-        ev.effectAllowed = 'move'
+        this.drag.active = true
+        // ev.effectAllowed = 'move'
         this.drag.startOffsetX = ev.layerX
 
         console.log('开始拖动 is: ', ev)
@@ -97,13 +168,13 @@
         // console.log('ev is: ', ev)
       },
       handleRangeDrag(ev){
-        ev.preventDefault();
+        if(!this.drag.active) return
         console.log('拖动: ', ev)
         this.drag.draggingOffsetX = ev.layerX
         this.drag.clientX = ev.clientX
         // console.log('this.drag.draggingOffsetX is: ', JSON.stringify(this.drag.draggingOffsetX))
         // console.log('this.drag.draggingOffsetX is: ', JSON.stringify(this.drag.draggingOffsetX))
-        console.log('this.drag.draggingOffsetX-this.drag.startOffsetX is: ', JSON.stringify(this.drag.draggingOffsetX))
+        // console.log('this.drag.draggingOffsetX-this.drag.startOffsetX is: ', JSON.stringify(this.drag.draggingOffsetX))
         // console.log('this.sliderMaskStyles is: ', JSON.stringify(this.sliderMaskStyles))
         // let y = ev.offsetY
         // console.log('x is: ', JSON.stringify(x))
@@ -111,36 +182,93 @@
         // console.log('ev is: ', ev)
 
         let left = (this.drag.clientX-this.box.offsetLeft-this.drag.startOffsetX)
-        let left2 = left+parseFloat(this.sliderMaskStyles.width)
-        this.sliderMaskStyles.left = left+'px'
-        let startDateTime = (left*this.scale)+new Date(this.myTotalDateRange.startDate).getTime()
-        let endDateTime = (left2*this.scale)+new Date(this.myTotalDateRange.startDate).getTime()
-        console.log('startDateTime is: ', JSON.stringify(Math.ceil(startDateTime)))
-        console.log('endDateTime is: ', JSON.stringify(Math.ceil(endDateTime)))
+        // let left2 = left+parseFloat(this.sliderMaskStyles.width)
+        // console.log('left is: ', JSON.stringify(left))
+        // console.log('this.box.maxLeft-this.sliderMaskStyles.width is: ', JSON.stringify(this.box.maxLeft-this.sliderMaskStyles.width))
+        if (left >= 0&&left<=this.box.maxLeft-parseFloat(this.sliderMaskStyles.width)) {
+            this.sliderMaskStyles.left = left+'px';
+        }else if (left < 0) {
+          this.sliderMaskStyles.left = '0px'
+        }else if (left>this.box.maxLeft-parseFloat(this.sliderMaskStyles.width)) {
+          this.sliderMaskStyles.left = this.box.maxLeft-parseFloat(this.sliderMaskStyles.width)
+        }
+        // let startDateTime = (left*this.scale)+new Date(this.myTotalDateRange.startDate).getTime()
+        // let endDateTime = (left2*this.scale)+new Date(this.myTotalDateRange.startDate).getTime()
+        // console.log('startDateTime is: ', JSON.stringify(Math.ceil(startDateTime)))
+        // console.log('endDateTime is: ', JSON.stringify(Math.ceil(endDateTime)))
       },
-      handleRangeDragOver(ev) {
-      },
-      handleRangeDragEnd(){
-
-        // this.drag.startOffsetX = 0
-        // this.drag.draggingOffsetX = 0
-      },
+      // handleRangeDragEnd(){
+      //   this.drag.active = false
+      //   // this.drag.startOffsetX = 0
+      //   // this.drag.draggingOffsetX = 0
+      // },
       handleSliderBarDragStart(ev) {
+        ev.stopPropagation()
+        // ev.effectAllowed = 'move'
+        this.dragSlider1.active = true
         this.dragSlider1.startOffsetX = ev.layerX
       },
-      handleSliderBarDrag(ev) {
-        ev.preventDefault();
-        console.log('handleSliderBarDrag ev is: ', ev)
-        this.dragSlider1.startOffsetX = ev.layerX
+      handleSliderBarDrag(ev) { // 第一块滑块
+        if(!this.dragSlider1.active) return
+        // console.log('handleSliderBarDrag ev is: ', ev)
         this.dragSlider1.clientX = ev.clientX
+        // console.log('this.dragSlider1.startOffsetX is: ', JSON.stringify(this.dragSlider1.startOffsetX))
 
-        let left = (this.dragSlider1.clientX-this.box.offsetLeft-this.dragSlider1.startOffsetX)
-        let left2 = left+parseFloat(this.sliderMaskStyles.width)
         let lastLeft = this.sliderMaskStyles.left
+        // console.log('this.dragSlider1.startOffsetX is: ', JSON.stringify(this.dragSlider1.startOffsetX))
+        let left = this.dragSlider1.clientX-this.box.offsetLeft-this.dragSlider1.startOffsetX
+        let left2 = parseFloat(lastLeft)+parseFloat(this.sliderMaskStyles.width)
         // console.log('left-parseFloat(lastLeft) is: ', JSON.stringify(left-parseFloat(lastLeft)))
-        this.sliderMaskStyles.left = left+'px'
-        this.sliderMaskStyles.width = (parseFloat(this.sliderMaskStyles.width)+this.dragSlider1.startOffsetX)+'px'
-      }
+        if (left >= 0) {
+          this.sliderMaskStyles.left = left+'px';
+          // this.sliderMaskStyles.width = (parseFloat(this.sliderMaskStyles.width)+this.dragSlider1.startOffsetX)+'px'
+          this.sliderMaskStyles.width = (parseFloat(left2)-left)+'px'
+        }else if (left < 0) {
+          this.sliderMaskStyles.left = '0px'
+          this.sliderMaskStyles.width = (parseFloat(left2)-0)+'px'
+        }
+
+      },
+      // handleSliderBarDragEnd(){
+      //   this.dragSlider1.active = false
+      // },
+      handleSliderBar2DragStart(ev) {
+        ev.stopPropagation()
+        // ev.effectAllowed = 'move'
+        this.dragSlider2.active = true
+        this.dragSlider2.startOffsetX = ev.layerX
+      },
+      handleSliderBar2Drag(ev) { // 第一块滑块
+        if (!this.dragSlider2.active) return
+        console.log('handleSliderBarDrag ev is: ', ev)
+        this.dragSlider2.clientX = ev.clientX
+        console.log('this.dragSlider2.startOffsetX is: ', JSON.stringify(this.dragSlider2.startOffsetX))
+
+        let lastLeft = this.sliderMaskStyles.left
+        // console.log('this.dragSlider2.startOffsetX is: ', JSON.stringify(this.dragSlider2.startOffsetX))
+        let left = this.dragSlider2.clientX-this.box.offsetLeft-this.dragSlider2.startOffsetX
+        // let left2 = parseFloat(lastLeft)+parseFloat(this.sliderMaskStyles.width)
+        // console.log('left-parseFloat(lastLeft) is: ', JSON.stringify(left-parseFloat(lastLeft)))
+        // this.sliderMaskStyles.left = left+'px'
+        // this.sliderMaskStyles.width = (parseFloat(this.sliderMaskStyles.width)+this.dragSlider2.startOffsetX)+'px'
+        let width = this.dragSlider2.clientX-this.box.offsetLeft+this.dragSlider2.startOffsetX-parseFloat(this.sliderMaskStyles.left)
+
+        if (parseFloat(this.sliderMaskStyles.left) + width < this.box.maxLeft) {
+          this.sliderMaskStyles.width = width+'px'
+        }else{
+          this.sliderMaskStyles.width = this.box.maxLeft-parseFloat(this.sliderMaskStyles.left)+'px'
+        }
+        // if (left >= 0&&left<=this.box.maxLeft-parseFloat(this.sliderMaskStyles.width)) {
+        //   this.sliderMaskStyles.left = left+'px';
+        //   // this.sliderMaskStyles.width = (parseFloat(this.sliderMaskStyles.width)+this.dragSlider1.startOffsetX)+'px'
+        //   this.sliderMaskStyles.width = (parseFloat(left2)-left)+'px'
+        // }else if (left < 0) {
+        //   this.sliderMaskStyles.left = '0px'
+        // }
+      },
+      // handleSliderBar2DragEnd() {
+      //   this.dragSlider2.active = false
+      // }
     },
     computed: {
       styles() {
@@ -214,10 +342,14 @@
     },
     mounted() {
       this.getDomAttr()
-      window.addEventListener('resize', this.resize, false)
+      window.addEventListener('resize', this.resize)
+      document.addEventListener('mousemove', this.move)
+      document.addEventListener('mouseup', this.up)
+      // console.log('this.$moment(1559615513925) is: ', JSON.stringify(this.$moment(1559615513925)))
     },
     beforeDestroy(){
-      window.removeEventListener('resize', this.resize, false)
+      window.removeEventListener('resize', this.resize)
+      document.removeEventListener('mouseup', this.up)
     }
   }
 </script>
@@ -238,12 +370,33 @@
         position: absolute;
         background-color: rgba(0, 0, 0, 0.2);
         display: flex;
-        justify-content: space-between;
+        /*justify-content: space-between;*/
         /*cursor: ew-resize;*/
     }
     .slider-range>.slider-bar{
+        position: absolute;
         width: 5px;
+        height: 100%;
         background-color: red;
         cursor: ew-resize;
+    }
+    .slider-range>.slider-bar1{
+        left:0;
+    }
+    .slider-range>.slider-bar2{
+        right:0;
+    }
+    .extra-content{
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    div {
+        -moz-user-select:none;
+        -webkit-user-select:none;
+        user-select:none;
     }
 </style>

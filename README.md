@@ -1,5 +1,5 @@
 # slide-daterange-picker
-
+Simply Slide the slider to control date range.
 ## install
 ```
 npm install slide-daterange-picker --save

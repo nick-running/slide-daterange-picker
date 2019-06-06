@@ -1,18 +1,22 @@
 <template>
-    <div class="slider" :style="styles">
-        <div ref="sliderBox" class="slider-box">
-            <div class="extra-content">
-                <slot></slot>
-            </div>
-            <div @mousedown="handleRangeDragStart"
-                 :style="sliderMaskStyles" class="slider-range">
-                <div @mousedown="handleSliderBarDragStart"
-                     class="slider-bar slider-bar1"></div>
+    <div class="slider">
+        <div class="slider-info">{{sliderInfo.text1}}</div>
+        <div class="slider-wrapper" :style="styles">
+            <div ref="sliderBox" class="slider-box">
+                <div class="extra-content">
+                    <slot></slot>
+                </div>
+                <div @mousedown="handleRangeDragStart"
+                     :style="sliderMaskStyles" class="slider-range">
+                    <div @mousedown="handleSliderBarDragStart"
+                         class="slider-bar slider-bar1"></div>
 
-                <div @mousedown="handleSliderBar2DragStart"
-                     class="slider-bar slider-bar2"></div>
+                    <div @mousedown="handleSliderBar2DragStart"
+                         class="slider-bar slider-bar2"></div>
+                </div>
             </div>
         </div>
+        <div class="slider-info slider-info2">{{sliderInfo.text2}}</div>
     </div>
 </template>
 
@@ -85,6 +89,10 @@
           left: 0,
           width: 0,
           height: 0
+        },
+        sliderInfo: {
+          text1: '',
+          text2: ''
         }
       }
     },
@@ -92,6 +100,11 @@
       init(){
         this.myTotalDateRange.startDate = this.$moment(this.totalDateRange[0])
         this.myTotalDateRange.endDate = this.$moment(this.totalDateRange[1])
+
+        let dateRange = this.dateRangeFormat(this.myTotalDateRange)
+        this.sliderInfo.text1 = dateRange[0]
+        this.sliderInfo.text2 = dateRange[1]
+
         this.myDateRange.startDate = this.$moment(this.dateRange[0])
         this.myDateRange.endDate = this.$moment(this.dateRange[1])
       },
@@ -103,6 +116,18 @@
         // console.log('this.$refs.sliderBox.offsetLeft is: ', JSON.stringify(this.$refs.sliderBox.offsetLeft))
         // console.log('this.$refs.sliderBox.clientLeft is: ', JSON.stringify(this.$refs.sliderBox.clientLeft))
         // console.log('this.$refs.sliderBox.clientWidth is: ', JSON.stringify(this.$refs.sliderBox.clientWidth))
+      },
+      dateRangeFormat(rangeDate) {
+        let dateRange = []
+        if (this.format) {
+          const _this = this
+          let formatDate = (date)=>_this.$moment(date).format(_this.format)
+          dateRange[0] = formatDate(rangeDate.startDate)
+          dateRange[1] = formatDate(rangeDate.endDate)
+        }else{
+          dateRange = this.myDateRange
+        }
+        return dateRange
       },
       resize(){
         console.log('resize.')
@@ -356,6 +381,20 @@
 
 <style scoped>
     .slider{
+        display: flex;
+    }
+    .slider>.slider-info{
+        width: 160px;
+        display: flex;
+        align-items: center;
+    }
+    .slider>.slider-info2{
+        justify-content: flex-end;
+    }
+    .slider>.slider-wrapper{
+        flex:1;
+    }
+    .slider-wrapper{
         width: 100%;
         background-color: #fff;
         border: 1px solid #ddd;
@@ -391,8 +430,9 @@
         width: 100%;
         height: 100%;
         display: flex;
-        justify-content: center;
-        align-items: center;
+        /*flex-direction: column;*/
+        /*justify-content: center;*/
+        /*align-items: center;*/
     }
     div {
         -moz-user-select:none;

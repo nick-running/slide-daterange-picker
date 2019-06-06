@@ -5,26 +5,41 @@
       <!--<router-link to="/about">About</router-link>-->
     <!--</div>-->
     <!--<router-view/>-->
-        <h1>slide-daterange-picker DEMO</h1>
+        <h1>slide-daterange-picker demo</h1>
       <h4 style="text-align: center">{{dateRange}}</h4>
       <slider @on-date-range-change="dateRange=$event"
-              :total-date-range="['2019-6-4', '2019-6-5']"
+              :total-date-range="['2019-6-4 00:00:00', '2019-6-4 01:00:01']"
               format="YYYY-MM-DD HH:mm:ss"
-              :date-range="['2019-6-4 12:52:00', '2019-6-4 16:43:45']">
-          <div>big data</div>
+              :date-range="['2019-6-4 00:12:00', '2019-6-4 00:23:00']">
+          <!--<div>big data</div>-->
       </slider>
+      <h4 style="text-align: center">{{dateRange2}}</h4>
+      <slider @on-date-range-change="dateRange2=$event"
+              :total-date-range="['2019-6-4 00:00:00', '2019-6-4 23:00:01']"
+              format="YYYY-MM-DD HH:mm:ss"
+              :date-range="['2019-6-4 00:12:00', '2019-6-4 00:23:00']">
+              <chartSlider></chartSlider>
+      </slider>
+
+      <!--<div style="height: 500px;position: relative;">-->
+          <!--<div style="position: absolute;width: 100%;height:100%;display: flex;">-->
+              <!--<chartSlider></chartSlider>-->
+          <!--</div>-->
+      <!--</div>-->
   </div>
 </template>
 <script>
   import slider from './components/slider'
+  import chartSlider from './components/chartSlider'
   export default {
     name: 'home',
     components: {
-      slider
+      slider, chartSlider
     },
     data(){
       return {
-        dateRange: null
+        dateRange: null,
+        dateRange2: null,
       }
     },
   }

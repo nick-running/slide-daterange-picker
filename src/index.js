@@ -1,1 +1,3 @@
-export { default } from './components/slider.vue'
+import slider from './components/slider'
+import chartSlider from './components/chartSlider'
+export {slider, chartSlider}

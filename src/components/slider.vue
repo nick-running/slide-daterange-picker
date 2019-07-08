@@ -130,7 +130,7 @@
         return dateRange
       },
       resize(){
-        console.log('resize.')
+        // console.log('resize.')
         this.getDomAttr()
       },
       move(ev) {
@@ -244,7 +244,7 @@
         let left = this.dragSlider1.clientX-this.box.offsetLeft-this.dragSlider1.startOffsetX
         let left2 = parseFloat(lastLeft)+parseFloat(this.sliderMaskStyles.width)
         // console.log('left-parseFloat(lastLeft) is: ', JSON.stringify(left-parseFloat(lastLeft)))
-        if (left >= 0) {
+        if (left >= 0&&left<parseFloat(this.sliderMaskStyles.left)+parseFloat(this.sliderMaskStyles.width)) {
           this.sliderMaskStyles.left = left+'px';
           // this.sliderMaskStyles.width = (parseFloat(this.sliderMaskStyles.width)+this.dragSlider1.startOffsetX)+'px'
           this.sliderMaskStyles.width = (parseFloat(left2)-left)+'px'
@@ -265,9 +265,9 @@
       },
       handleSliderBar2Drag(ev) { // 第一块滑块
         if (!this.dragSlider2.active) return
-        console.log('handleSliderBarDrag ev is: ', ev)
+        // console.log('handleSliderBarDrag ev is: ', ev)
         this.dragSlider2.clientX = ev.clientX
-        console.log('this.dragSlider2.startOffsetX is: ', JSON.stringify(this.dragSlider2.startOffsetX))
+        // console.log('this.dragSlider2.startOffsetX is: ', JSON.stringify(this.dragSlider2.startOffsetX))
 
         let lastLeft = this.sliderMaskStyles.left
         // console.log('this.dragSlider2.startOffsetX is: ', JSON.stringify(this.dragSlider2.startOffsetX))
@@ -280,7 +280,7 @@
 
         if (parseFloat(this.sliderMaskStyles.left) + width < this.box.maxLeft) {
           this.sliderMaskStyles.width = width+'px'
-        }else{
+        }else if(width>0){
           this.sliderMaskStyles.width = this.box.maxLeft-parseFloat(this.sliderMaskStyles.left)+'px'
         }
         // if (left >= 0&&left<=this.box.maxLeft-parseFloat(this.sliderMaskStyles.width)) {
@@ -407,7 +407,7 @@
     }
     .slider-range{
         position: absolute;
-        background-color: rgba(0, 0, 0, 0.2);
+        background-color: rgba(0, 0, 0, 0.15);
         display: flex;
         /*justify-content: space-between;*/
         /*cursor: ew-resize;*/
@@ -416,7 +416,7 @@
         position: absolute;
         width: 5px;
         height: 100%;
-        background-color: red;
+        background-color: #2d8cf0;
         cursor: ew-resize;
     }
     .slider-range>.slider-bar1{

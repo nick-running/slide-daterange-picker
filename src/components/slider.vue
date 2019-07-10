@@ -111,7 +111,8 @@
       getDomAttr(){
         this.box.width = this.$refs.sliderBox.clientWidth
         this.box.height = this.$refs.sliderBox.clientHeight
-        this.box.offsetLeft = this.$refs.sliderBox.offsetLeft
+        this.box.offsetLeft = this.$refs.sliderBox.getBoundingClientRect().left
+        // console.log('this.$refs.sliderBox is: ', this.$refs.sliderBox.getBoundingClientRect().left)
         this.box.maxLeft = this.$refs.sliderBox.clientWidth
         // console.log('this.$refs.sliderBox.offsetLeft is: ', JSON.stringify(this.$refs.sliderBox.offsetLeft))
         // console.log('this.$refs.sliderBox.clientLeft is: ', JSON.stringify(this.$refs.sliderBox.clientLeft))

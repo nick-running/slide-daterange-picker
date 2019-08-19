@@ -20,10 +20,17 @@
               <!--:date-range="['2019-6-4 00:12:00', '2019-6-4 00:23:00']">-->
               <!--<chartSlider></chartSlider>-->
       <!--</slider>-->
-      <chartSlider @on-date-range-change="dateRange2=$event"
-                   :total-date-range="['2019-6-4 00:00:00', '2019-6-4 23:00:01']"
-                   format="YYYY-MM-DD HH:mm:ss"
-                   :date-range="['2019-6-4 00:12:00', '2019-6-4 00:23:00']"/>
+      <div style="display: flex">
+          <div style="width: 150px;flex: 0 0 150px;">
+              left
+          </div>
+          <div style="flex: 1">
+              <chartSlider @on-date-range-change="dateRange2=$event"
+                           :total-date-range="['2019-6-4 00:00:00', '2019-6-4 23:00:01']"
+                           format="YYYY-MM-DD HH:mm:ss"
+                           :date-range="['2019-6-4 00:12:00', '2019-6-4 00:23:00']"/>
+          </div>
+      </div>
 
 
       <!--<div style="height: 500px;position: relative;">-->

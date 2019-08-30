@@ -1,6 +1,6 @@
 {
   "name": "slide-daterange-picker",
-  "version": "0.1.2",
+  "version": "0.1.7",
   "private": false,
   "scripts": {
     "serve": "vue-cli-service serve",

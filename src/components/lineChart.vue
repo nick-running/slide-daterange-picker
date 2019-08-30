@@ -12,36 +12,45 @@
   let chart
   export default {
     name: "line-cart",
+    props: {
+      data: {
+        type: Array,
+        default: ()=>[]
+      }
+    },
     data() {
-      return {}
+      return {
+        chartData: this.data
+      }
     },
     methods: {
       initChart(){
         chart = echarts.init(this.$refs.chart)
       },
       renderChart() {
-        let data = [
-          {
-            "name": "业务a",
-            "id": "a4eaae67-759a-47a9-8414-236a9fcd7d46",
-            "data": [
-              {
-                "ts": "2019-04-15 00:00:23",
-                "num": "122"
-              },
-              {
-                "ts": "2019-04-15 00:10:23",
-                "num": "112"
-              },
-              {
-                "ts": "2019-04-15 00:23:23",
-                "num": "0"
-              }
-            ]
-          }
-        ]
+        console.log('renderChart...')
+        // let data = [
+        //   {
+        //     "name": "业务a",
+        //     "id": "a4eaae67-759a-47a9-8414-236a9fcd7d46",
+        //     "data": [
+        //       {
+        //         "ts": "2019-04-15 00:00:23",
+        //         "num": "56"
+        //       },
+        //       {
+        //         "ts": "2019-04-15 00:10:23",
+        //         "num": "112"
+        //       },
+        //       {
+        //         "ts": "2019-04-15 00:23:23",
+        //         "num": "33"
+        //       }
+        //     ]
+        //   }
+        // ]
         let seriesData = []
-        data.forEach(n=>{
+        this.chartData.forEach(n=>{
           let itemList = []
           n.data.forEach(d=>{
             itemList.push([d.ts, d.num])
@@ -87,6 +96,12 @@
       resize(){
         chart.resize()
       },
+    },
+    watch: {
+      data(d){
+        this.chartData = d
+        this.renderChart()
+      }
     },
     mounted() {
       this.initChart()

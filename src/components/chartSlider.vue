@@ -3,19 +3,23 @@
         <slider @on-date-range-change="onDateRangeChange"
                 :total-date-range="totalDateRange"
                 :format="format"
-                :date-range="dateRange">
-            <lineChart></lineChart>
+                v-model="mDateRange">
+            <lineChart :data="chartData"></lineChart>
         </slider>
     </div>
 </template>
 
 <script>
-    import slider from './slider'
+    import slider from './slider5'
   import lineChart from './lineChart.vue'
   export default {
     name: "chart-slider",
     components: {
       slider, lineChart
+    },
+    model: {
+      prop: 'dateRange',
+      event: 'change'
     },
     props: {
       height: {
@@ -26,24 +30,31 @@
         type: String
       },
       totalDateRange: {
-        type: Array,
-        default(){  // 默认起止为当前时间
-          return [new Date(), new Date()]
-        }
+        type: String
       },
       dateRange: {
+        type: String
+      },
+      chartData: {
         type: Array,
-        default(){  // 默认起止为当前时间
-          return [new Date(), new Date()]
-        }
+        default: ()=>[]
       }
     },
     data() {
-      return {}
+      return {
+        mDateRange: this.dateRange
+      }
     },
     methods: {
       onDateRangeChange(dateRange){
+        // console.log('dateRange is: ', JSON.stringify(dateRange))
         this.$emit('on-date-range-change', dateRange);
+        this.$emit('change', dateRange)
+      }
+    },
+    watch: {
+      dateRange(d){
+        this.mDateRange = d
       }
     },
     mounted() {

@@ -22,7 +22,7 @@
 
 <script>
   export default {
-    name: "slider",
+    name: "slider2",
     model: {
       prop: 'dateRange',
       event: 'input'
@@ -115,11 +115,7 @@
         this.box.width = this.$refs.sliderBox.clientWidth
         this.box.height = this.$refs.sliderBox.clientHeight
         this.box.offsetLeft = this.$refs.sliderBox.getBoundingClientRect().left
-        // console.log('this.$refs.sliderBox is: ', this.$refs.sliderBox.getBoundingClientRect().left)
         this.box.maxLeft = this.$refs.sliderBox.clientWidth
-        // console.log('this.$refs.sliderBox.offsetLeft is: ', JSON.stringify(this.$refs.sliderBox.offsetLeft))
-        // console.log('this.$refs.sliderBox.clientLeft is: ', JSON.stringify(this.$refs.sliderBox.clientLeft))
-        // console.log('this.$refs.sliderBox.clientWidth is: ', JSON.stringify(this.$refs.sliderBox.clientWidth))
       },
       dateRangeFormat(rangeDate) {
         let dateRange = []
@@ -134,11 +130,10 @@
         return dateRange
       },
       resize(){
-        // console.log('resize.')
         this.getDomAttr()
       },
       move(ev) {
-        ev.stopPropagation();
+        ev.stopPropagation()
         if(!this.drag.active&&!this.dragSlider1.active&&!this.dragSlider2.active) return
         if (this.drag.active) {
             this.handleRangeDrag(ev)
@@ -148,7 +143,6 @@
           this.handleSliderBar2Drag(ev)
         }
         this.setTime()
-        // console.log('ev is: ', ev)
       },
       up() {
         if(!this.drag.active&&!this.dragSlider1.active&&!this.dragSlider2.active) return
@@ -162,7 +156,6 @@
         this.setTime()
       },
       setTime(){
-        // debugger
         let left = parseFloat(this.sliderMaskStyles.left)
         let left2 = left+parseFloat(this.sliderMaskStyles.width)
         let startDateTime = (left*this.scale)+new Date(this.myTotalDateRange.startDate).getTime()
@@ -183,35 +176,13 @@
       },
       handleRangeDragStart(ev){
         this.drag.active = true
-        // ev.effectAllowed = 'move'
         this.drag.startOffsetX = ev.layerX
-
-        console.log('开始拖动 is: ', ev)
-        // console.log('开始拖动: ', JSON.stringify(this.drag.startOffsetX))
-        // let y = ev.offsetY
-        // console.log('start.')
-        // console.log('x is: ', JSON.stringify(x))
-        // console.log('y is: ', JSON.stringify(y))
-        // console.log('ev is: ', ev)
       },
       handleRangeDrag(ev){
         if(!this.drag.active) return
-        console.log('拖动: ', ev)
         this.drag.draggingOffsetX = ev.layerX
         this.drag.clientX = ev.clientX
-        // console.log('this.drag.draggingOffsetX is: ', JSON.stringify(this.drag.draggingOffsetX))
-        // console.log('this.drag.draggingOffsetX is: ', JSON.stringify(this.drag.draggingOffsetX))
-        // console.log('this.drag.draggingOffsetX-this.drag.startOffsetX is: ', JSON.stringify(this.drag.draggingOffsetX))
-        // console.log('this.sliderMaskStyles is: ', JSON.stringify(this.sliderMaskStyles))
-        // let y = ev.offsetY
-        // console.log('x is: ', JSON.stringify(x))
-        // console.log('y is: ', JSON.stringify(y))
-        // console.log('ev is: ', ev)
-
         let left = (this.drag.clientX-this.box.offsetLeft-this.drag.startOffsetX)
-        // let left2 = left+parseFloat(this.sliderMaskStyles.width)
-        // console.log('left is: ', JSON.stringify(left))
-        // console.log('this.box.maxLeft-this.sliderMaskStyles.width is: ', JSON.stringify(this.box.maxLeft-this.sliderMaskStyles.width))
         if (left >= 0&&left<=this.box.maxLeft-parseFloat(this.sliderMaskStyles.width)) {
             this.sliderMaskStyles.left = left+'px';
         }else if (left < 0) {
@@ -219,36 +190,21 @@
         }else if (left>this.box.maxLeft-parseFloat(this.sliderMaskStyles.width)) {
           this.sliderMaskStyles.left = this.box.maxLeft-parseFloat(this.sliderMaskStyles.width)
         }
-        // let startDateTime = (left*this.scale)+new Date(this.myTotalDateRange.startDate).getTime()
-        // let endDateTime = (left2*this.scale)+new Date(this.myTotalDateRange.startDate).getTime()
-        // console.log('startDateTime is: ', JSON.stringify(Math.ceil(startDateTime)))
-        // console.log('endDateTime is: ', JSON.stringify(Math.ceil(endDateTime)))
       },
-      // handleRangeDragEnd(){
-      //   this.drag.active = false
-      //   // this.drag.startOffsetX = 0
-      //   // this.drag.draggingOffsetX = 0
-      // },
       handleSliderBarDragStart(ev) {
         ev.stopPropagation()
-        // ev.effectAllowed = 'move'
         this.dragSlider1.active = true
         this.dragSlider1.startOffsetX = ev.layerX
       },
       handleSliderBarDrag(ev) { // 第一块滑块
         if(!this.dragSlider1.active) return
-        // console.log('handleSliderBarDrag ev is: ', ev)
         this.dragSlider1.clientX = ev.clientX
-        // console.log('this.dragSlider1.startOffsetX is: ', JSON.stringify(this.dragSlider1.startOffsetX))
 
         let lastLeft = this.sliderMaskStyles.left
-        // console.log('this.dragSlider1.startOffsetX is: ', JSON.stringify(this.dragSlider1.startOffsetX))
         let left = this.dragSlider1.clientX-this.box.offsetLeft-this.dragSlider1.startOffsetX
         let left2 = parseFloat(lastLeft)+parseFloat(this.sliderMaskStyles.width)
-        // console.log('left-parseFloat(lastLeft) is: ', JSON.stringify(left-parseFloat(lastLeft)))
         if (left >= 0&&left<parseFloat(this.sliderMaskStyles.left)+parseFloat(this.sliderMaskStyles.width)) {
           this.sliderMaskStyles.left = left+'px';
-          // this.sliderMaskStyles.width = (parseFloat(this.sliderMaskStyles.width)+this.dragSlider1.startOffsetX)+'px'
           this.sliderMaskStyles.width = (parseFloat(left2)-left)+'px'
         }else if (left < 0) {
           this.sliderMaskStyles.left = '0px'
@@ -256,46 +212,21 @@
         }
 
       },
-      // handleSliderBarDragEnd(){
-      //   this.dragSlider1.active = false
-      // },
       handleSliderBar2DragStart(ev) {
         ev.stopPropagation()
-        // ev.effectAllowed = 'move'
         this.dragSlider2.active = true
         this.dragSlider2.startOffsetX = ev.layerX
       },
       handleSliderBar2Drag(ev) { // 第一块滑块
         if (!this.dragSlider2.active) return
-        // console.log('handleSliderBarDrag ev is: ', ev)
         this.dragSlider2.clientX = ev.clientX
-        // console.log('this.dragSlider2.startOffsetX is: ', JSON.stringify(this.dragSlider2.startOffsetX))
-
-        let lastLeft = this.sliderMaskStyles.left
-        // console.log('this.dragSlider2.startOffsetX is: ', JSON.stringify(this.dragSlider2.startOffsetX))
-        let left = this.dragSlider2.clientX-this.box.offsetLeft-this.dragSlider2.startOffsetX
-        // let left2 = parseFloat(lastLeft)+parseFloat(this.sliderMaskStyles.width)
-        // console.log('left-parseFloat(lastLeft) is: ', JSON.stringify(left-parseFloat(lastLeft)))
-        // this.sliderMaskStyles.left = left+'px'
-        // this.sliderMaskStyles.width = (parseFloat(this.sliderMaskStyles.width)+this.dragSlider2.startOffsetX)+'px'
         let width = this.dragSlider2.clientX-this.box.offsetLeft+this.dragSlider2.startOffsetX-parseFloat(this.sliderMaskStyles.left)
-
         if (parseFloat(this.sliderMaskStyles.left) + width < this.box.maxLeft) {
           this.sliderMaskStyles.width = width+'px'
         }else if(width>0){
           this.sliderMaskStyles.width = this.box.maxLeft-parseFloat(this.sliderMaskStyles.left)+'px'
         }
-        // if (left >= 0&&left<=this.box.maxLeft-parseFloat(this.sliderMaskStyles.width)) {
-        //   this.sliderMaskStyles.left = left+'px';
-        //   // this.sliderMaskStyles.width = (parseFloat(this.sliderMaskStyles.width)+this.dragSlider1.startOffsetX)+'px'
-        //   this.sliderMaskStyles.width = (parseFloat(left2)-left)+'px'
-        // }else if (left < 0) {
-        //   this.sliderMaskStyles.left = '0px'
-        // }
       },
-      // handleSliderBar2DragEnd() {
-      //   this.dragSlider2.active = false
-      // }
     },
     computed: {
       styles() {
@@ -340,17 +271,6 @@
         let endDate = this.myDateRange.endDate-this.myTotalDateRange.startDate
         return endDate/this.scale
       },
-      // sliderMaskStyles(){
-      //   let styles = {}
-      //   if (this.box.height&&this.slider1X&&this.slider2X) {
-      //     styles.height = this.box.height+'px'
-      //     // styles.left = this.slider1X+'px'
-      //     // styles.left = (this.slider1X+this.drag.draggingOffsetX-this.drag.startOffsetX)+'px'
-      //     styles.left = (this.slider1X+this.drag.clientX-this.drag.draggingOffsetX-this.drag.startOffsetX)+'px'
-      //     styles.width = (this.slider2X-this.slider1X)+'px'
-      //   }
-      //   return styles
-      // }
     },
     watch: {
       'box.height'(h) {
@@ -369,14 +289,12 @@
     },
     created(){
       this.init()
-      // console.log('this.myTotalDateRange is: ', JSON.stringify(this.myTotalDateRange))
     },
     mounted() {
       this.getDomAttr()
       window.addEventListener('resize', this.resize)
       document.addEventListener('mousemove', this.move)
       document.addEventListener('mouseup', this.up)
-      // console.log('this.$moment(1559615513925) is: ', JSON.stringify(this.$moment(1559615513925)))
     },
     beforeDestroy(){
       window.removeEventListener('resize', this.resize)
